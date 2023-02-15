@@ -5,6 +5,7 @@ const dateFns = require('date-fns');
 const dateFnsTZ = require('date-fns-tz');
 
 let finalResult = [];
+const queryText = "SELECT DATE, TIME, HN, VNSEQ, DIVISION, cast(EVENTTIM as time) AS EVENTTIM, STATUS FROM VIEW_STATUS_HN ";
 
 function pushResult(item) {
     finalResult.push(item);
@@ -22,27 +23,27 @@ async function getHNStatus() {
         const nowDate = dateFnsTZ.format(bangkokDate, 'yyyyMMdd', { timeZone: 'Asia/Bangkok' });
 
         const giveMed = await pool.request().input('DATE', sql.VarChar, nowDate)
-            .query("SELECT * FROM VIEW_STATUS_HN WHERE DATE = @DATE AND ( STATUS = 'จ่ายยา' OR STATUS = 'ชำระเงิน(คนไข้ไม่มียา)' ) ORDER BY cast(TIME as time)");
+            .query(queryText + "WHERE DATE = @DATE AND ( STATUS = 'จ่ายยา' OR STATUS = 'ชำระเงิน(คนไข้ไม่มียา)' ) ORDER BY cast(TIME as time)");
         giveMed.recordsets[0].forEach(pushResult);
 
         const payBill = await pool.request().input('DATE', sql.VarChar, nowDate)
-            .query("SELECT * FROM VIEW_STATUS_HN WHERE DATE = @DATE AND STATUS = 'ชำระเงิน' ORDER BY cast(TIME as time)");
+            .query(queryText + "WHERE DATE = @DATE AND STATUS = 'ชำระเงิน' ORDER BY cast(TIME as time)");
         payBill.recordsets[0].forEach(pushResult);
 
         const treatEnd = await pool.request().input('DATE', sql.VarChar, nowDate)
-            .query("SELECT * FROM VIEW_STATUS_HN WHERE DATE = @DATE AND STATUS = 'จบการรักษา' ORDER BY cast(TIME as time)");
+            .query(queryText + "WHERE DATE = @DATE AND STATUS = 'จบการรักษา' ORDER BY cast(TIME as time)");
         treatEnd.recordsets[0].forEach(pushResult);
 
         const treatProc = await pool.request().input('DATE', sql.VarChar, nowDate)
-            .query("SELECT * FROM VIEW_STATUS_HN WHERE DATE = @DATE AND STATUS = 'รอผล' ORDER BY cast(TIME as time)");
+            .query(queryText + "WHERE DATE = @DATE AND STATUS = 'รอผล' ORDER BY cast(TIME as time)");
         treatProc.recordsets[0].forEach(pushResult);
 
         const treatWait = await pool.request().input('DATE', sql.VarChar, nowDate)
-            .query("SELECT * FROM VIEW_STATUS_HN WHERE DATE = @DATE AND STATUS = 'รอพบแพทย์' ORDER BY cast(TIME as time)");
+            .query(queryText + "WHERE DATE = @DATE AND STATUS = 'รอพบแพทย์' ORDER BY cast(TIME as time)");
         treatWait.recordsets[0].forEach(pushResult);
 
         const register = await pool.request().input('DATE', sql.VarChar, nowDate)
-            .query("SELECT * FROM VIEW_STATUS_HN WHERE DATE = @DATE AND STATUS = 'ลงทะเบียน' ORDER BY cast(TIME as time)");
+            .query(queryText + "WHERE DATE = @DATE AND STATUS = 'ลงทะเบียน' ORDER BY cast(TIME as time)");
         register.recordsets[0].forEach(pushResult);
 
         console.log("getHNStatus complete");
