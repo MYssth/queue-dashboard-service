@@ -1,4 +1,4 @@
-require('dotenv').config();
+require("dotenv").config({ path: `.env.${process.env.NODE_ENV}` });
 var config = require('./dbconfig');
 const sql = require('mssql');
 const dateFns = require('date-fns');
